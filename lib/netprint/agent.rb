@@ -32,27 +32,26 @@ module Netprint
 
       options = Options.new(options)
 
-      Dir.mktmpdir do |dir|
-        upload_filename  = (Pathname(dir) + ([
-              Time.now.to_f.to_s,
-              Digest::MD5.hexdigest(filename).to_s,
-              File.basename(filename).gsub(/[^\w]+/, '') + File.extname(filename)
-            ].join('_'))).to_s
-        cp filename, upload_filename
+      file_data = open(filename, "rb") { |f| f.read }
+      file_data.force_encoding('UTF-8') # change from ASCII-8BIT
 
-        form = @page.form_with(name: 'NPFL0020')
-        form.file_uploads.first.file_name = upload_filename
-        options.apply(form)
-        @page = form.submit(form.button_with(name: 'update-ow-btn'))
+      upload_filename = File.basename(filename)
 
-        errors = @page.search('//ul[@id="svErrMsg"]/li')
+      form = @page.form_with(name: 'NPFL0020')
+      form.file_uploads.first.file_name = upload_filename
+      form.file_uploads.first.file_data = file_data
 
-        unless errors.empty?
-          raise UploadError.new(errors.first.text)
-        end
+      options.apply(form)
 
-        get_code
+      @page = form.submit(form.button_with(name: 'update-ow-btn'))
+
+      errors = @page.search('//ul[@id="svErrMsg"]/li')
+
+      unless errors.empty?
+        raise UploadError.new(errors.first.text)
       end
+
+      get_code
     end
 
     def login?
