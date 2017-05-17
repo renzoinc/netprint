@@ -54,6 +54,30 @@ module Netprint
       get_code
     end
 
+    def purge(id)
+      raise 'not logged in' unless login?
+
+      while true do
+        table = @page.search('table.file-details')
+        table.search('tr').each do |row|
+          # The checkbox. Read 'value' to be able to set it
+          row_number = row.xpath('./td[1]/input/@value')
+          # The NetPrintJobId
+          netprint_id = row.xpath('./td[3]')
+
+          next unless netprint_id == id
+
+          form = @page.form_with(name: 'NPFL0010')
+          form.checkbox_with(name: 'delete-flg', value: row_number.to_s).check
+          button = form.button_with(name: 'delete')
+          n.submit(form, button)
+        end
+        link = @page.link_with(text: '＞')
+        return unless link
+        @page = link.click
+      end
+    end
+
     def login?
       @page && @page.code == '200'
     end
