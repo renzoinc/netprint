@@ -63,14 +63,12 @@ module Netprint
           # The checkbox. Read 'value' to be able to set it
           row_number = row.xpath('./td[1]/input/@value')
           # The NetPrintJobId
-          netprint_id = row.xpath('./td[3]')
+          netprint_id = row.xpath('./td[3]').text
 
           next unless netprint_id == id
 
-          form = @page.form_with(name: 'NPFL0010')
-          form.checkbox_with(name: 'delete-flg', value: row_number.to_s).check
-          button = form.button_with(name: 'delete')
-          n.submit(form, button)
+          submit_removal(row_number)
+          break
         end
         link = @page.link_with(text: '＞')
         return unless link
@@ -115,5 +113,15 @@ module Netprint
       @mechanize.ssl_version = :TLSv1
       @mechanize
     end
+
+    def submit_removal(index)
+      form = @page.form_with(name: 'NPFL0010')
+      form.checkbox_with(name: 'delete-flg', value: index.to_s).check
+      @page = form.submit(form.button_with(name: 'delete'))
+
+      form = @page.form_with(name: 'NPFL0040')
+      form.submit(form.button_with(name: 'delete-btn'))
+    end
   end
+
 end
