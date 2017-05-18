@@ -54,6 +54,9 @@ module Netprint
       get_code
     end
 
+    # Method to delete existing print jobs. As Mechanize is not able to run JavaScript,
+    # this method can only be used to delete jobs on the first page displayed (1 - 10),
+    # as page switching is handled by JavaScript in Netprint
     def purge(id)
       raise 'not logged in' unless login?
 

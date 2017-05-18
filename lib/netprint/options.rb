@@ -19,8 +19,9 @@ module Netprint
       check_radiobutton(form, 'pin-num-set-fl', options[:secret_code] =~ /^\d{4}$/ ? '1' : '0')
       check_radiobutton(form, 'notice-onoff',   options[:email] ? '1' : '0')
 
-      form['pin-no']         = options[:secret_code] if options[:secret_code] =~ /^\d{4}$/
-      form['mail-adr-to-tx'] = options[:email]       if options[:email]
+      form['fil-vald-kign-dt'] = (Date.today + 2).strftime('%Y/%m/%d')
+      form['pin-no']           = options[:secret_code] if options[:secret_code] =~ /^\d{4}$/
+      form['mail-adr-to-tx']   = options[:email]       if options[:email]
     end
 
     private
