@@ -54,6 +54,13 @@ module Netprint
       get_code
     end
 
+    def remaining_quota
+      raise 'not logged in' unless login?
+
+      data = @page.search('section.column3-3 dl dd')
+      data[3].text.chomp('KB').delete(',').to_i
+    end
+
     # Method to delete existing print jobs. As Mechanize is not able to run JavaScript,
     # this method can only be used to delete jobs on the first page displayed (1 - 10),
     # as page switching is handled by JavaScript in Netprint
@@ -73,9 +80,9 @@ module Netprint
           submit_removal(row_number)
           break
         end
-        link = @page.link_with(text: '＞')
-        return unless link
-        @page = link.click
+        # link = @page.link_with(text: '＞')
+        # return unless link
+        # @page = link.click
       end
     end
 
